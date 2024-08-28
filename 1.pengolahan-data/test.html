@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Countries</h1>
+    <table id="countriesTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Dial Code</th>
+                <th>Iso Code</th>
+                <th>flag</th>
+            </tr>
+        </thead>
+        <tbody id="output"></tbody>
+    </table>
+
+    <script>
+        async function getCountriesData() {
+            try {
+                const response = await fetch('https://citcall.com/test/countries.json');
+                const data = await response.json();
+                console.log('data', data)
+                const output = document.getElementById('output');
+
+                data.forEach(country => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${country.name}</td><td>${country.dialCode}</td><td>${country.isoCode}</td><image src=${country.flag} alt="" />`;
+                    output.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        getCountriesData();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,120 @@
+package main
+
+import (
+    "fmt"
+    "strings"
+    "strconv"
+    "unicode"
+)
+
+func decodeCryptarithm(equation string) (string, error) {
+    
+    // membuat bentuk persamaan a + b = c
+    parts := strings.Split(equation, "=")
+    // validasi jika tidak tedapat value antara '='
+    if len(parts) != 2 {
+        return "", fmt.Errorf("format persamaan tidak valid")
+    }
+    left := strings.TrimSpace(parts[0])
+    right := strings.TrimSpace(parts[1])
+
+    // membuat fungsi persamaan operator
+    var operand1, operand2, operator string
+    if strings.Contains(left, "+") {
+        operands := strings.Split(left, "+")
+        operand1 = strings.TrimSpace(operands[0])
+        operand2 = strings.TrimSpace(operands[1])
+        operator = "+"
+    } else if strings.Contains(left, "-") {
+        operands := strings.Split(left, "-")
+        operand1 = strings.TrimSpace(operands[0])
+        operand2 = strings.TrimSpace(operands[1])
+        operator = "-"
+    } else {
+        return "", fmt.Errorf("operator tidak dikenali")
+    }
+
+    // membuat karakter uniq
+    uniqueChars := make(map[rune]struct{})
+    for _, char := range operand1 + operand2 + right {
+        if unicode.IsLetter(char) {
+            uniqueChars[char] = struct{}{}
+        }
+    }
+
+    // fungsi mencari kombinasi angka pada karakter uniq
+    var charList []rune
+    for char := range uniqueChars {
+        charList = append(charList, char)
+    }
+
+    var result string
+    if findSolution(charList, make([]int, len(charList)), 0, operand1, operand2, right, operator, &result) {
+        return result, nil
+    }
+
+    return "Tidak ada solusi yang ditemukan.", nil
+}
+
+func findSolution(chars []rune, digits []int, index int, operand1, operand2, result, operator string, finalResult *string) bool {
+    if index == len(chars) {
+        // maping karakter -> digit
+        mapping := make(map[rune]int)
+        for i, char := range chars {
+            mapping[char] = digits[i]
+        }
+
+        // validasi penggunaan 0 di depan
+        if (mapping[rune(operand1[0])] == 0 || mapping[rune(operand2[0])] == 0 || mapping[rune(result[0])] == 0) {
+            return false
+        }
+
+        // kalkulasi
+        num1 := convertToNumber(operand1, mapping)
+        num2 := convertToNumber(operand2, mapping)
+        res := convertToNumber(result, mapping)
+
+        // cek persamaan
+        if (operator == "+" && num1+num2 == res) || (operator == "-" && num1-num2 == res) {
+            *finalResult = fmt.Sprintf("%d %s %d = %d", num1, operator, num2, res)
+            return true
+        }
+        return false
+    }
+
+    for d := 0; d < 10; d++ {
+        digits[index] = d
+        if findSolution(chars, digits, index+1, operand1, operand2, result, operator, finalResult) {
+            return true
+        }
+    }
+    return false
+}
+
+func convertToNumber(operand string, mapping map[rune]int) int {
+    numStr := ""
+    for _, char := range operand {
+        numStr += strconv.Itoa(mapping[char])
+    }
+    num, _ := strconv.Atoi(numStr)
+    return num
+}
+
+// test hasil
+func main() {
+    input1 := "JA + JA = AD"
+    output1, err := decodeCryptarithm(input1)
+    if err != nil {
+        fmt.Println(err)
+    } else {
+        fmt.Println(output1)
+    }
+
+    input2 := "ABD - AD = DKL"
+    output2, err := decodeCryptarithm(input2)
+    if err != nil {
+        fmt.Println(err)
+    } else {
+        fmt.Println(output2)
+    }
+}
