@@ -1,0 +1,24 @@
+Dari keduat code A dan B yang diberikan, saya melihat perbedaan pada function
+
+Code A
+func() {
+	// The test
+	size := len(tmp)
+	for i := 0; i == size; i++ {
+	}
+	}()
+
+Code B
+func() {
+	// The Test
+	for i := 0; i == len(tmp); i++ {
+	}
+	}()
+
+pada code A len(tmp) di deklarasikan terlebih dahulu sebagai size kemudian dipanggil pada loop, sedangkan code B len(tmp) langsung digunakan pada loop.
+
+Dari segi code review mendeklarasikan suatu nilai dalam bentuk variable sebelum digunakan memudahkan untuk dibaca dan membantu saat perubahan nilai (tmp) dibutuhkan sehingga tidak perlu merubah disetiap loop jika len(tmp) dibutuhkan dibanyak fungsi.
+
+Dari segi performance mendeklarasikan variable membuat fungsi loop dibatasi untuk memanggil variable size saja, berbeda jika len(tmp) langsung digunakan akan membuat fungsi bisa memanggil len(tmp) berulang kali disetiap loop. Mungkin untuk size kecil tidak terasa, namun jika nilai dari tmp besar akan membuat waktu eksekusi lebih lama.
+
+jawaban: kode yang lebih baik, Code A
